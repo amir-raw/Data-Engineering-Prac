@@ -1,0 +1,38 @@
+#Basic batch processing techniques 
+#multiple file reading and then formatting it accordingly
+import pandas as pd
+
+def process_batch(file_path):
+    """Reads a CSV file, performs transformations, and saves the results."""
+    
+    # 1. Read the Data
+    df = pd.read_csv(file_path)
+
+    # 2. Transform the Data (Example transformations)
+    df['total_price'] = df['quantity'] * df['price']
+    df['order_date'] = pd.to_datetime(df['order_date'])  # Convert to datetime
+
+    # 3. Aggregate (Optional)
+    daily_sales = df.groupby('order_date')['total_price'].sum()
+
+    # 4. Save Results
+    output_file = file_path.replace('.csv', '_processed.csv')
+    df.to_csv(output_file, index=False)
+
+    if not daily_sales.empty:  # Check if aggregation produced results
+        daily_sales_file = file_path.replace('.csv', '_daily_sales.csv')
+        daily_sales.to_csv(daily_sales_file)
+
+def main():
+    """Processes a batch of files in a directory."""
+    
+    import os
+    data_directory = 'your_data_directory'  # Replace with your actual directory
+
+    for filename in os.listdir(data_directory):
+        if filename.endswith('.csv'):
+            file_path = os.path.join(data_directory, filename)
+            process_batch(file_path)
+
+if __name__ == '__main__':
+    main()
